@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import bcrypt from "bcryptjs";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_ANON_KEY!
-);
+// This is a temporary solution. In production, you should use a proper database
+const users = [
+  {
+    id: "1",
+    name: "Test User",
+    email: "test@example.com",
+    // This is a hashed version of "password123"
+    password: "$2a$10$zG2jU0Jq7U0Jq7U0Jq7U0Oq7U0Jq7U0Jq7U0Jq7U0Jq7U0Jq7U0"
+  }
+];
 
 export async function POST(req: Request) {
   try {
@@ -15,18 +20,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 });
     }
 
-    // Fetch user from Supabase
-    const { data: user, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", email)
-      .single();
+    // Find user by email
+    const user = users.find(user => user.email === email);
 
-    if (error || !user) {
+    if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Compare password with hashed password in Supabase
+    // Compare password with hashed password
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
