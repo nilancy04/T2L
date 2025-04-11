@@ -22,23 +22,10 @@ export function AuthForm({ type }: AuthFormProps) {
     setLoading(true);
 
     if (type === "signup") {
-      // Call signup API
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Failed to sign up");
-        setLoading(false);
-        return;
-      }
-
-      // Auto sign in after successful signup
-      await signIn("credentials", { email, password, redirect: false });
-      router.push("/dashboard");
+      // For signup, we'll just redirect to signin since we're using in-memory auth
+      setError("Signup is not available in demo mode. Please use the test account.");
+      setLoading(false);
+      return;
     } else {
       // Sign-in logic
       const res = await signIn("credentials", {
@@ -48,7 +35,7 @@ export function AuthForm({ type }: AuthFormProps) {
       });
 
       if (res?.error) {
-        setError("Invalid email or password");
+        setError("Invalid email or password. Try test@example.com / password123");
         setLoading(false);
         return;
       }
